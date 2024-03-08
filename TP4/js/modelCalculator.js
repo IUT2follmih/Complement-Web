@@ -53,6 +53,7 @@ class Calculator {
    */
   setInput(expr) {
     this._input = expr;
+    this.saveStateToClient();
   }
 
   /**
@@ -60,72 +61,84 @@ class Calculator {
    */
   clearInput() {
     this._input = "";
+    this.saveStateToClient();
   }
 
-  addToInput(value) {
-    this._input += value;
-  }
-
-  reverseSign() {
-    if (this._input.startsWith("-")) {
+  reverseTheSign() {
+    if (this._input.charAt(0) == "-") {
       this._input = this._input.slice(1);
     } else {
       this._input = "-" + this._input;
     }
+    this.saveStateToClient();
   }
 
-  setMemory() {
-    let onlyNumRegEx = /^-?\d+[\.\d+]+$/;
-
-    if (this._input = "") {
-      throw new Error("Impossible d'enregistrer");
+  eval() {
+    try {
+      this._input = eval(this._input);
+      this.saveStateToClient();
     }
-    if (onlyNumRegEx.test(this._input) == false) {
-      throw new Error("Impossible d'enregistrer valeur non numérique");
+    catch (err) {
+      alert("Erreur!\n" + err);
+    }
+  }
+
+  getMem() {
+    if (this._memory == null) {
+      return ("");
+    } else {
+      return this._memory;
+    }
+  }
+
+  setMem() {
+    let onlyNumRegEx = /^-?\d+(\.\d+)?$/;
+    if(this._input==""){
+      throw new Error("Impossible d'enregistrer la valeur en mémoire : Champ vide")
+    }
+    if(onlyNumRegEx.test(this._input) == false){
+      throw new Error("Impossible d'enregistrer la valeur en mémoire : Valeur non numérique")
     }
     this._memory = this._input;
+    this.saveStateToClient();
   }
 
-  recallMemory() {
-    if (this._memory != null) {
-      this._input += this._memory;
-    }
-  }
-
-  clearMemory() {
+  resMem() {
     this._memory = null;
+    this.saveStateToClient();
   }
 
   saveStateToClient() {
-    if (this._memory != null) {
-      localStorage.setItem("memoryContent", this._memory);
-    } else {
-      localStorage.setItem("memoryContent", "");
+    let state = {
+      input: this._input,
+      memory: this._memory,
+      editableButtons: {}
+    };
+
+    for (let key in this._editableButtons) {
+      state.editableButtons[key] = this._editableButtons[key].getValue();
     }
 
-    let obj = {};
-    for (let btn in this._editableButtons) {
-      obj[btn] = this._editableButtons[btn].getValue();
-    }
-
-    let chaineJSON = JSON.stringify(obj);
-    localStorage.setItem("editableButtonsContent", chaineJSON);
+    localStorage.setItem("calcState", JSON.stringify(state));
   }
 
   retrieveStateFromClient() {
-    let memoryL = localStorage.getItem("memoryContent");
-    let editableBtnsL = localStorage.getItem("editableButtonsContent");
+    if (localStorage.getItem("calcState") != null) {
+      let state = JSON.parse(localStorage.getItem("calcState"));
 
-    if (memoryL != "") {
-      this._memory = memoryL;
-    }
-
-    if (editableBtnsL) {
-      let obj = JSON.parse(editableBtnsL);
-      for (let key in obj) {
-        let btn = new EditableButton(key, obj[key]);
-        this._editableButtons[key] = btn;
+      if (state.input != null) {
+        this._input = state.input;
       }
+      if (state.memory != null) {
+        this._memory = state.memory;
+      }
+
+      if (state.editableButtons != null) {
+        for (let key in state.editableButtons) {
+          this._editableButtons[key].setValue(state.editableButtons[key]);
+        }
+      }
+
     }
   }
 }

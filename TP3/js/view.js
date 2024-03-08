@@ -5,17 +5,24 @@ const view = {
   // Champ de la calculatrice
   calcInput: document.getElementById("zone_affichage"),
 
-  // Bouton CE et BK
+  // Bouton CE
   ceBtn: document.querySelector("input[value='CE']"),
-  backSpaceBtn: document.querySelector("input[value='←']"),
-  invertBtn: document.querySelector("input[value='±']"),
-  equalBtn: document.querySelector("input[value='=']"),
 
-  // Boutons memory
-  memoryRecallBtn: document.querySelector("input[value='MR']"),
-  memoryClearBtn: document.querySelector("input[value='MC']"),
-  memorySave: document.querySelector("input[value='MS']"),
+  bkBtn: document.querySelector("input[title='Retour arrière (Backspace)']"),
 
-  libreBtn: document.querySelectorAll(".bouton_libre"),
+  simpleBtns: document.querySelectorAll(".bouton_simple"),
+
+  libreBtns: document.querySelectorAll(".bouton_libre"),
+
+  revBtn: document.querySelector("input[title='Plus Minus']"),
+
+  eqBtn: document.querySelector("input[value='=']"),
+  
+  msBtn: document.querySelector("input[value='MS']"),
+  
+  mrBtn: document.querySelector("input[value='MR']"),
+
+  mcBtn: document.querySelector("input[value='MC']"),
+
   editCheck: document.querySelector("#editionCheckbox")
 };

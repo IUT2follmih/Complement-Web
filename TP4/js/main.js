@@ -5,15 +5,18 @@
 // ### Initialisation du modèle ###
 // (à partir du contenu des boutons éditables)
 const editableBtnsInfos = {
-  libre1: "%",
-  libre2: "",
-  libre3: "",
-  libre4: "",
-  libre5: "",
-  libre6: "",
+  "libre1": "%",
+  "libre2": "",
+  "libre3": "",
+  "libre4": "",
+  "libre5": "",
+  "libre6": "",
 };
 let calculator = new Calculator(editableBtnsInfos);
+
 calculator.retrieveStateFromClient();
+
+view.calcInput.value=calculator.getInput();
 
 /* (La vue est initialisée dans le fichier "view.js"
     et accessible via la constante "view") */
@@ -45,71 +48,49 @@ view.ceBtn.addEventListener("click", function () {
   view.calcInput.value = calculator.getInput();
 });
 
-view.backSpaceBtn.addEventListener("click", function () {
-  // Informe le modèle du changement
+view.bkBtn.addEventListener("click", function(){
   calculator.setInput(calculator.getInput().slice(0, -1));
-  // Mise à jour de l'affichage
   view.calcInput.value = calculator.getInput();
-});
+})
 
-let classicClickListener = function (evt) {
-  // Informe le modèle du changement
-  calculator.addToInput(evt.target.value);
-  // Mise à jour de l'affichage
-  view.calcInput.value = calculator.getInput();
-};
+for (let btn of view.simpleBtns) {
+  btn.addEventListener("click", function () {
+    calculator.setInput(calculator.getInput() + this.value);
+    view.calcInput.value = calculator.getInput();
+  });
+}
 
-document.addEventListener("click", (evt) => {
-  if (evt.target.classList.contains("bouton_simple")) {
-    classicClickListener(evt);
+view.revBtn.addEventListener("click", function(){
+  calculator.reverseTheSign();
+  view.calcInput.value=calculator.getInput();
+})
+
+view.eqBtn.addEventListener("click", function(){
+  calculator.eval();
+  view.calcInput.value=calculator.getInput();
+})
+
+
+view.msBtn.addEventListener("click", function(){
+  let save = calculator.getMem();
+  try{
+    calculator.setMem();
+  } catch(e){
+    alert(e);
+    calculator.setMem(save);
   }
-});
+})
 
-view.invertBtn.addEventListener("click", function () {
-  // Informe le modèle du changement
-  calculator.reverseSign();
-  // Mise à jour de l'affichage
-  view.calcInput.value = calculator.getInput();
-});
+view.mrBtn.addEventListener("click", function(){
+  calculator.setInput(calculator.getInput() + calculator.getMem());
+  view.calcInput.value=calculator.getInput();
+})
 
-view.equalBtn.addEventListener("click", function () {
-  // Informe le modèle du changement
-  try {
-    let result = eval(view.calcInput.value);
-    calculator.setInput(result);
-  } catch (e) {
-    alert("Erreur dans l'expression");
-  }
-  // Mise à jour de l'affichage
-  view.calcInput.value = calculator.getInput();
-});
+view.mcBtn.addEventListener("click", function(){
+  calculator.resMem();
+})
 
-// ### Initialisation des boutons de la mémoire ##
-view.memoryRecallBtn.addEventListener("click", function () {
-  calculator.recallMemory();
-  view.calcInput.value = calculator.getInput();
-  calculator.saveStateToClient();
-});
-
-view.memorySave.addEventListener("click", function () {
-
-  try {
-    let result = eval(view.calcInput.value);
-    calculator.setMemory();
-    calculator.saveStateToClient();
-  } catch (e) {
-    alert("Erreur dans l'expression");
-  }
-});
-
-view.memoryClearBtn.addEventListener("click", function () {
-  calculator.clearMemory();
-  calculator.clearInput();
-  view.calcInput.value = calculator.getInput();
-  calculator.saveStateToClient();
-});
-
-for (let btn of view.libreBtn) {
+for (let btn of view.libreBtns) {
   btn.addEventListener("click", function () {
     if(!view.editCheck.checked){
       btn.type = 'button';
@@ -117,7 +98,7 @@ for (let btn of view.libreBtn) {
       view.calcInput.value = calculator.getInput();
     } else{
       btn.type = 'text';
-      
+      btn.select();
       btn.addEventListener('input', function(){
         calculator._editableButtons[btn.id].setValue(btn.value);
         calculator.saveStateToClient();
@@ -130,6 +111,8 @@ for (let btn of view.libreBtn) {
       });
     }
   });
-
-  
 }
+
+
+
+
