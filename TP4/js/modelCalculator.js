@@ -93,10 +93,10 @@ class Calculator {
 
   setMem() {
     let onlyNumRegEx = /^-?\d+(\.\d+)?$/;
-    if(this._input==""){
+    if (this._input == "") {
       throw new Error("Impossible d'enregistrer la valeur en mémoire : Champ vide")
     }
-    if(onlyNumRegEx.test(this._input) == false){
+    if (onlyNumRegEx.test(this._input) == false) {
       throw new Error("Impossible d'enregistrer la valeur en mémoire : Valeur non numérique")
     }
     this._memory = this._input;
@@ -139,6 +139,49 @@ class Calculator {
         }
       }
 
+    }
+  }
+
+  stateSaveToServer() {
+    let state = {
+      editableButtons: {},
+      memory: this._memory
+    }
+    for (let key in this._editableButtons) {
+      state.editableButtons[key] = this._editableButtons[key].getValue();
+    }
+
+    fetch("api/save-calculator-state.php", {
+      method: "POST",
+      body: "state=" + JSON.stringify(state),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+      .then((resObj) => {
+        if (!resObj.ok) { console.log('Erreur HTTP : ' + resObj.status); }
+      })
+      .catch((err) => console.error(err));
+
+  }
+
+  async retrieveStateFromServer() {
+    try {
+      let resObj = await fetch("api/get-calculator-state.php");
+      if (!resObj.ok) { console.log('Erreur HTTP : ' + resObj.status); }
+      let state = await resObj.json();
+      if (state.memory != null) {
+        this._memory = state.memory;
+      }
+
+      if (state.editableButtons != null) {
+        for (let key in state.editableButtons) {
+          this._editableButtons[key].setValue(state.editableButtons[key]);
+        }
+      }
+    }
+    catch (err) {
+      console.error(err);
     }
   }
 }

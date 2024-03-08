@@ -5,7 +5,7 @@
 // ### Initialisation du modèle ###
 // (à partir du contenu des boutons éditables)
 const editableBtnsInfos = {
-  "libre1": "%",
+  "libre1": "",
   "libre2": "",
   "libre3": "",
   "libre4": "",
@@ -14,22 +14,25 @@ const editableBtnsInfos = {
 };
 let calculator = new Calculator(editableBtnsInfos);
 
-calculator.retrieveStateFromClient();
+document.addEventListener('DOMContentLoaded', async function(){
+  await calculator.retrieveStateFromServer();
 
-view.calcInput.value=calculator.getInput();
+  for (let key of Object.keys(calculator._editableButtons)) {
+    // La clé de l'objet correspond à un ID de bouton dans la page
+    let btnElt = document.getElementById(key);
+    // Si le bouton existe bien, on met à jour sa valeur affichée
+    if (btnElt) {
+      btnElt.value = calculator._editableButtons[key].getValue();
+    }
+  }
+});
+//view.calcInput.value=calculator.getInput();
 
 /* (La vue est initialisée dans le fichier "view.js"
     et accessible via la constante "view") */
+// wait till retrieveStateFromServer is done
 
 // ### Initialisation de l'affichage des boutons éditables ###
-for (let key of Object.keys(calculator._editableButtons)) {
-  // La clé de l'objet correspond à un ID de bouton dans la page
-  let btnElt = document.getElementById(key);
-  // Si le bouton existe bien, on met à jour sa valeur affichée
-  if (btnElt) {
-    btnElt.value = calculator._editableButtons[key].getValue();
-  }
-}
 
 // ### Initialisation des listeners ###
 // - Gestion de la saisie au clavier
@@ -75,6 +78,7 @@ view.msBtn.addEventListener("click", function(){
   let save = calculator.getMem();
   try{
     calculator.setMem();
+    calculator.stateSaveToServer();
   } catch(e){
     alert(e);
     calculator.setMem(save);
@@ -88,6 +92,7 @@ view.mrBtn.addEventListener("click", function(){
 
 view.mcBtn.addEventListener("click", function(){
   calculator.resMem();
+  calculator.stateSaveToServer();
 })
 
 for (let btn of view.libreBtns) {
@@ -111,8 +116,12 @@ for (let btn of view.libreBtns) {
       });
     }
   });
+
+view.editCheck.addEventListener('change', function(){
+  if(!this.checked){
+    calculator.stateSaveToServer();
+  }
+});
+
 }
-
-
-
 
