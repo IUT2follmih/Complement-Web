@@ -23,9 +23,16 @@ class Game {
    * Lance une nouvelle partie (s'il n'y a pas déjà une partie en cours).
    */
   launchNewGame() {
-    throw new Error("(Méthode pas encore implémentée)");
-
-    // TODO Compléter en Partie 1 ...
+    if(!this._gameInProgress){
+      this._gameInProgress = true;
+      this._wordToGuess = this.getNewWordObject().mot;
+      console.log(this.getNewWordObject().nb_essais)
+      this._nbErrorsAllowed = this.getNewWordObject;
+      this._usedLetters = this._wordToGuess[0] + this._wordToGuess[this._wordToGuess.length - 1];
+      this.updateWordToDisplay();
+    } else {
+      throw new Error("Une partie est déjà en cours");
+    }
   }
 
   /**
@@ -60,9 +67,15 @@ class Game {
    * @returns {string} Une chaine de la forme "E_E____T"
    */
   generateWordToDisplay(lettersToDisplay, wordToGuess) {
-    return "???";
-
-    // TODO Compléter en Partie 1 ...
+    let word ="";
+    for(let i = 0; i < wordToGuess.length; i++){
+      if(lettersToDisplay.includes(wordToGuess[i])){
+        word += wordToGuess[i];
+      } else {
+        word += "_";
+      }
+    }
+    return word;
   }
 
   /**
@@ -70,9 +83,23 @@ class Game {
    * @param {string} letter : La lettre jouée
    */
   playLetter(letter) {
-    throw new Error(`(Méthode pas encore implémentée)`);
+    if(this._gameInProgress == true){
+      if(this._usedLetters.includes(letter)) {
+        console.log("La lettre a déjà été joué");
+        throw new Error("La lettre a déjà été joué");
+      } 
 
-    // TODO Compléter en Partie 1 ...
+      this._usedLetters += letter;
+
+      if(this._wordToGuess.includes(letter)){
+        console.log("La lettre est dans le mot");
+        this.updateWordToDisplay();
+      } else {
+        this._nbErrorsAllowed = this._nbErrorsAllowed - 1;
+      }
+    } else {
+      throw new Error(`Aucune partie en cours`);
+    }
   }
 
   /**
